@@ -1,0 +1,335 @@
+以下是几道关于 volatile 关键字的经典计算题，用于测试对可见性和原子性的理解。
+
+### **题目 1：基础可见性问题**
+
+**代码**：
+
+java
+
+
+
+
+
+
+
+
+
+
+
+```java
+public class VolatileVisibility {
+    private static volatile int x = 0;
+    private static int y = 0;
+
+    public static void main(String[] args) throws InterruptedException {
+        // 线程1：修改x和y
+        Thread t1 = new Thread(() -> {
+            x = 1;  // 写volatile变量
+            y = 2;  // 写普通变量
+        });
+
+        // 线程2：读取y和x
+        Thread t2 = new Thread(() -> {
+            System.out.println(y);  // 读普通变量
+            System.out.println(x);  // 读volatile变量
+        });
+
+        t1.start();
+        t2.start();
+        t1.join();
+        t2.join();
+    }
+}
+```
+
+
+
+
+
+![img](data:image/png;base64,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)
+
+**问题**：线程 2 的输出可能有哪些？
+**答案**：
+
+1. 可能的输出
+
+   ：
+
+   - `0, 0`（t2 在线程 t1 修改前读取）
+   - `2, 1`（t2 在线程 t1 修改后读取）
+   - `0, 1`（t2 读到 x 的最新值，但未读到 y 的更新，因为 y 不是 volatile）
+
+2. 不可能的输出
+
+   ：
+
+   - `2, 0`（根据 volatile 的 happens-before 原则，写 x 后写 y，读 x 时必能读到 y 的更新，但此处 y 未声明为 volatile，因此可能读到旧值）
+
+### **题目 2：复合操作的原子性**
+
+**代码**：
+
+java
+
+
+
+
+
+
+
+
+
+
+
+```java
+public class VolatileAtomicity {
+    private static volatile int counter = 0;
+
+    public static void main(String[] args) throws InterruptedException {
+        // 启动100个线程，每个线程自增1000次
+        Thread[] threads = new Thread[100];
+        for (int i = 0; i < 100; i++) {
+            threads[i] = new Thread(() -> {
+                for (int j = 0; j < 1000; j++) {
+                    counter++;  // 复合操作（读+写）
+                }
+            });
+            threads[i].start();
+        }
+
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        System.out.println("Counter: " + counter);
+    }
+}
+```
+
+**问题**：最终输出的`counter`值一定是 100,000 吗？为什么？
+**答案**：
+
+- 不一定
+
+  。虽然
+
+  ```
+  volatile
+  ```
+
+  保证可见性，但
+
+  ```
+  counter++
+  ```
+
+  是复合操作（读取、加 1、写入），不具备原子性。多线程可能同时读取到相同值，导致写覆盖。例如：
+
+  1. 线程 A 和 B 同时读取`counter=50`。
+  2. 线程 A 计算`50+1=51`，写入主内存。
+  3. 线程 B 计算`50+1=51`，写入主内存。
+  4. 两次自增实际只增加了 1。
+
+- **正确做法**：使用`AtomicInteger`或`synchronized`。
+
+### **题目 3：双重检查锁定（DCL）**
+
+**代码**：
+
+java
+
+
+
+
+
+
+
+
+
+
+
+```java
+public class Singleton {
+    private static volatile Singleton instance;  // 关键点：volatile
+
+    private Singleton() {}
+
+    public static Singleton getInstance() {
+        if (instance == null) {  // 第一次检查
+            synchronized (Singleton.class) {
+                if (instance == null) {  // 第二次检查
+                    instance = new Singleton();  // 可能的指令重排序
+                }
+            }
+        }
+        return instance;
+    }
+}
+```
+
+**问题**：
+
+1. 为什么`instance`需要声明为`volatile`？
+2. 如果不使用`volatile`，会发生什么？
+
+**答案**：
+
+1. volatile 的作用
+
+   ：
+
+   - 禁止指令重排序。
+
+     ```
+     instance = new Singleton()
+     ```
+
+     实际分为三步：
+
+     plaintext
+
+     
+
+     
+
+     
+
+     
+
+     
+
+     ```plaintext
+     1. 分配内存空间  
+     2. 初始化对象  
+     3. 将instance指向内存地址  
+     ```
+
+   - 如果没有`volatile`，JVM 可能重排序为 1→3→2。当线程 A 执行完 3 但未完成 2 时，线程 B 检查`instance != null`，直接返回未初始化的对象。
+
+2. 不使用 volatile 的风险
+
+   ：
+
+   - 线程 B 可能拿到半初始化的对象，访问其未初始化的字段时抛出`NullPointerException`。
+
+### **题目 4：volatile 与 long/double 的原子性**
+
+**代码**：
+
+java
+
+
+
+
+
+
+
+
+
+
+
+```java
+public class VolatileLong {
+    private static volatile long value = 0L;  // 64位
+
+    public static void main(String[] args) {
+        // 线程1：写入高32位
+        new Thread(() -> {
+            while (true) {
+                value = System.currentTimeMillis();  // 写操作
+            }
+        }).start();
+
+        // 线程2：读取value
+        new Thread(() -> {
+            while (true) {
+                long v = value;  // 读操作
+                System.out.println(v);
+            }
+        }).start();
+    }
+}
+```
+
+**问题**：
+
+1. `volatile`对 64 位的`long`/`double`有什么特殊影响？
+2. 线程 2 是否可能读到 “撕裂值”（半旧半新的数据）？
+
+**答案**：
+
+1. 特殊规则
+
+   ：
+
+   - 在 Java 中，非`volatile`的`long`/`double`读写操作不是原子的（JVM 允许分两次 32 位操作）。
+   - 声明为`volatile`后，`long`/`double`的读写保证原子性。
+
+2. 结果
+
+   ：
+
+   - 线程 2 不会读到撕裂值（如高 32 位是新值，低 32 位是旧值），但可能读到旧值或新值（取决于可见性）。
+
+### **题目 5：volatile 与有序性**
+
+**代码**：
+
+java
+
+
+
+
+
+
+
+
+
+
+
+```java
+public class VolatileOrdering {
+    private static int a = 0;
+    private static volatile int b = 0;
+
+    public static void main(String[] args) throws InterruptedException {
+        // 线程1
+        Thread t1 = new Thread(() -> {
+            a = 1;      // 写普通变量
+            b = 2;      // 写volatile变量
+        });
+
+        // 线程2
+        Thread t2 = new Thread(() -> {
+            if (b == 2) {  // 读volatile变量
+                System.out.println(a);  // 读普通变量
+            }
+        });
+
+        t1.start();
+        t2.start();
+    }
+}
+```
+
+**问题**：线程 2 的输出是否可能为`0`？
+**答案**：
+
+- 不可能
+
+  。根据 volatile 的 happens-before 原则：
+
+  1. 线程 1 中`a=1`先于`b=2`（程序顺序规则）。
+  2. 线程 2 中`b==2`读到 2，说明线程 1 的写操作已完成。
+  3. 由于 volatile 禁止指令重排序，线程 2 在读取`b=2`时，`a=1`的写操作必定已完成。
+
+- **结论**：输出只能是`1`。
+
+### **总结**
+
+volatile 的核心考点：
+
+1. **可见性**：确保变量更新对其他线程立即可见。
+2. **原子性**：仅保证变量读写原子性，不保证复合操作（如`counter++`）。
+3. **有序性**：禁止指令重排序，建立 happens-before 关系。
+4. **64 位变量**：`volatile`保证`long`/`double`读写的原子性。
